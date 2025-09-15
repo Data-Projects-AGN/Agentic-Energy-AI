@@ -18,14 +18,13 @@ from pymilvus import (
     Collection
 )
 
-# Configure logging for better visibility into the script's execution
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename = 'pipeline.log', filemode = 'a')
 
 # --- Configuration ---
-# Your chosen model and its specifications
 MODEL_NAME = 'nomic-ai/nomic-embed-text-v1.5'
 MAX_TOKENS = 8192
-VECTOR_DIMENSION = 768 # For a 1000 token chunk size, a 200 token overlap is a good starting point.
+VECTOR_DIMENSION = 768 # For a 1000 token chunk size, a 200 token overlap is considered
 CHUNK_SIZE = 1000  
 CHUNK_OVERLAP = 200
 
@@ -41,7 +40,6 @@ try:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
 except Exception as e:
     logging.error(f"Failed to load model or tokenizer: {e}")
-    # In a real OCI Function, you might want to raise an exception to signal a failure
     raise e
 
 # --- Text Chunking and Token Management ---
@@ -100,7 +98,7 @@ def convert_to_vectors(key: str, filename: str, full_text: str):
         # Prepare the payload for insertion into Milvus
         # This structure matches the mental model of a vector database we discussed
         payload_entry = {
-            "key": key,
+            "ETag": key,
             "filename": filename,
             "chunk_id": i,
             "text": chunk, 
