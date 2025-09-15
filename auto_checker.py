@@ -50,19 +50,18 @@ def _batched(seq: List[str], n: int) -> Iterable[List[str]]:
 def _query_existing_etags(client: MilvusClient, collection: str, etags: List[str], etag_field="etag", batch_size=500) -> set:
     """Check existence in Milvus in IN-batches; returns a set of found etags."""
     found = set()
-    for batch in _batched(etags, batch_size):
-        in_list = ",".join([f'"{e}"' for e in batch])
-        filt = f'{etag_field} in [{in_list}]'
-        rows = client.query(
-            collection_name=collection,
-            filter=filt,
-            output_fields=[etag_field],
-            limit=len(batch)
-        )
-        for r in rows:
-            val = r.get(etag_field)
-            if val is not None:
-                found.add(_norm_etag(val))
+    in_list = ",".join([f'"{e}"' for e in etags])
+    filt = f'{etag_field} in [{in_list}]'
+    rows = client.query(
+        collection_name=collection,
+        filter=filt,
+        output_fields=[etag_field],
+    )
+    
+    for r in rows:
+        val = r.get(etag_field)
+        if val is not None:
+            found.add(_norm_etag(val))
     return found
 
 def iter_new_objects_by_etag(
@@ -71,7 +70,7 @@ def iter_new_objects_by_etag(
     prefix: str,
     milvus_client: MilvusClient,
     collection_name: str,
-    etag_field: str = "etag",
+    etag_field: str = "ETag",
     page_batch_check: int = 750,
 ) -> Generator[Dict[str, Any], None, None]:
     """
@@ -159,7 +158,7 @@ new_objs_iter = iter_new_objects_by_etag(
     prefix="",
     milvus_client=client,
     collection_name=COLLECTION_NAME,
-    etag_field="Etag",
+    etag_field="ETag",
     page_batch_check=5
 )
 
@@ -176,7 +175,7 @@ for obj in new_objs_iter:
         text, pages, meta = read_pdf_from_s3_bytes(s3_client, ORACLE_INGEST_BUCKET, key)
         #print(f"[PDF] {key} | etag={etag} | pages_read={meta['n_pages_read']}/{meta['n_pages_total']}")
 
-        convert_to_vectors(text = text, etag=etag, finalname=key)
+        convert_to_vectors(full_text = text, key=etag, filename=key)
 
     except Exception as e:
         print(f"[skip] {key} ({e})")
