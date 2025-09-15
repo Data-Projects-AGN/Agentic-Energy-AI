@@ -145,7 +145,7 @@ if __name__ == "__main__":
     # --- Test case with valid data ---
     logging.info("--- Running with valid data ---")
     try:
-        vectorize_and_insert(example_key, example_filename, long_text)
+        convert_to_vectors(example_key, example_filename, long_text)
         print("\n--- Workflow completed successfully. ---")
     except Exception as e:
         print(f"Workflow failed: {e}")
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     logging.info("--- Running with invalid data ---")
     try:
         # Intentionally missing the key and filename
-        vectorize_and_insert(None, None, long_text)
+        convert_to_vectors(None, None, long_text)
         print("\n--- Workflow completed successfully. ---")
     except Exception as e:
         print(f"Workflow failed: {e}")
