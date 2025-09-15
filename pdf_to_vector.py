@@ -96,7 +96,6 @@ def convert_to_vectors(key: str, filename: str, full_text: str):
             continue
 
         # Prepare the payload for insertion into Milvus
-        # This structure matches the mental model of a vector database we discussed
         payload_entry = {
             "ETag": key,
             "filename": filename,
